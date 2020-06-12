@@ -47,6 +47,116 @@ int main(int argc, char* argv[]) {
 	return EXIT_SUCCESS;
 }
 
+void transposingAdjacentLetters(std::string& word, Dictionary& dict, std::set<std::string>& correctionSet)
+{
+    std::string tmp;
+    for (int i = 0; i < word.length() - 1; ++i)
+    {
+        for (int j = 0; j < word.length(); ++j)
+        {
+            if(i == j){
+                 tmp += word[i + 1];
+            }
+            else
+            {
+                if(i + 1 == j){
+                    tmp += word[i];
+                }
+                else
+                {
+                    tmp += word[j];
+                }
+            }
+        }
+        if(dict.search(tmp))
+        {
+            correctionSet.insert("\t" + tmp + "\n");
+        }
+        tmp = "";
+    }
+}
+
+void RemoveLetters(std::string& word, Dictionary& dict, std::set<std::string>& correctionSet)
+{
+    std::string tmp;
+    for (int i = 0; i < word.length(); ++i)
+    {
+        for (int j = 0; j < word.length(); ++j)
+        {
+            if(j != i)
+                tmp += word[j];
+        }
+        if(dict.search(tmp))
+        {
+            correctionSet.insert("\t" + tmp + "\n");
+        }
+        tmp = "";
+    }
+}
+
+void ReplacementLetters(std::string& word, Dictionary& dict, std::set<std::string>& correctionSet)
+{
+    std::string tmp;
+    for (int i = 0; i < word.length(); ++i)
+    {
+        for (int j = 'a'; j < 'z' + 1; ++j)
+        {
+            for (int k = 0; k < word.length(); ++k)
+            {
+                if(i != k)
+                {
+                    tmp += word[k];
+                }
+                else
+                {
+                    tmp += static_cast<char>(j);
+                }
+            }
+            if(dict.search(tmp))
+            {
+                correctionSet.insert("\t" + tmp + "\n");
+            }
+            tmp = "";
+        }
+    }
+}
+
+void InsertingLetters(std::string& word, Dictionary& dict, std::set<std::string>& correctionSet)
+{
+    std::string tmp;
+    for (int i = 0; i < word.length() + 1; ++i)
+    {
+        for (int j = 'a'; j < 'z' + 1; ++j)
+        {
+            for (int k = 0; k < word.length(); ++k)
+            {
+                if(i == k)
+                {
+                    tmp += static_cast<char>(j);
+                    tmp += word[k];
+                }
+                else
+                {
+                    if(i == word.length() && k == word.length() - 1)
+                    {
+                        tmp += word[k];
+                        tmp += static_cast<char>(j);
+                    }
+                    else
+                    {
+                        tmp += word[k];
+                    }
+                }
+            }
+            if(dict.search(tmp))
+            {
+                correctionSet.insert("\t" + tmp + "\n");
+            }
+            tmp = "";
+        }
+    }
+}
+
 void checkSpelling(ifstream& in, Dictionary& dict) {
 
 	int line_number = 0;
@@ -64,7 +174,21 @@ void checkSpelling(ifstream& in, Dictionary& dict) {
 		string word;
 		while (ss >> word) 
         {
-            // TODO: Complete the spell check of each word
+		    word = stripPunct(word);
+		    lower(word);
+            if (!dict.search(word))
+            {
+                std::set<std::string> correctionSet;
+                std::cout << "\n" << word << ":\n";
+                transposingAdjacentLetters(word, dict, correctionSet);
+                RemoveLetters(word, dict, correctionSet);
+                ReplacementLetters(word, dict, correctionSet);
+                InsertingLetters(word, dict, correctionSet);
+                for(std::string correction : correctionSet)
+                {
+                    std::cout << correction;
+                }
+            }
 		}
 	}
 }

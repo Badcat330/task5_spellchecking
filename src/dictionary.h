@@ -18,10 +18,12 @@ class hash_function
 public:
 
     unsigned int operator()( const string& s )  const {
-        
-        
-        // Complete definition
-        
+        unsigned int sum = 1;
+        for(char i : s)
+        {
+              sum *= abs(i - 62);
+        }
+        return sum;
     }
 };
 
